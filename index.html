@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Healthcare Analytics SaaS</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{font-family:Segoe UI;background:#f4f6fb;margin:0}
+header{background:white;padding:18px 30px;box-shadow:0 2px 10px rgba(0,0,0,0.05)}
+.container{width:92%;margin:25px auto}
+.card{background:white;border-radius:14px;padding:22px;margin-bottom:20px;box-shadow:0 10px 24px rgba(0,0,0,0.06)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.kpi{padding:16px;border-radius:10px;background:linear-gradient(135deg,#eef2ff,#fff)}
+.kpi h2{margin:0;color:#4f7cff}
+textarea{width:100%;padding:12px;border-radius:8px;border:1px solid #ddd}
+button{background:#4f7cff;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer}
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:20px}
+.ai{background:#f0f9ff;border-left:6px solid #4f7cff;padding:15px;border-radius:10px}
+</style>
+</head>
+
+<body>
+
+<header><h2>🏥 Healthcare Analytics Platform</h2></header>
+
+<div class="container">
+
+<div class="card">
+<h3>Hospital Overview</h3>
+<div class="kpi-grid">
+<div class="kpi"><h2>{{analytics.total}}</h2>Total Patients</div>
+<div class="kpi"><h2>{{analytics.avg_age}}</h2>Average Age</div>
+<div class="kpi"><h2>{{analytics.top_condition}}</h2>Top Condition</div>
+<div class="kpi"><h2>{{analytics.abnormal_pct}}%</h2>Abnormal Tests</div>
+</div>
+</div>
+
+<div class="card">
+<h3>Dataset Insights</h3>
+<p>Rows: {{insights.rows}} | Columns: {{insights.cols}} | Missing: {{insights.missing}}</p>
+</div>
+
+<div class="chart-grid">
+{% if global_charts.gender %}
+<div class="card"><h3>Gender Distribution</h3><canvas id="genderChart"></canvas></div>
+{% endif %}
+{% if global_charts.condition %}
+<div class="card"><h3>Top Conditions</h3><canvas id="conditionChart"></canvas></div>
+{% endif %}
+{% if global_charts.admission %}
+<div class="card"><h3>Admission Types</h3><canvas id="admissionChart"></canvas></div>
+{% endif %}
+</div>
+
+<div class="card">
+<form method="POST">
+<textarea name="query" placeholder="female diabetes patients above 40"></textarea><br><br>
+<button type="submit">Run Query</button>
+<a href="/download"><button type="button">Download CSV</button></a>
+<a href="/report"><button type="button">Download PDF</button></a>
+</form>
+</div>
+
+{% if sql %}
+<div class="card"><b>Generated SQL:</b><br>{{sql}}</div>
+{% endif %}
+
+{% if ai_text %}
+<div class="card ai">
+<h3>🤖 AI Insight</h3>
+<p>{{ai_text}}</p>
+</div>
+{% endif %}
+
+{% if tables is not none %}
+<div class="card">{{ tables.to_html()|safe }}</div>
+{% endif %}
+
+</div>
+
+<script>
+const g={{global_charts|tojson}};
+
+if(g.gender){
+new Chart(document.getElementById("genderChart"),{
+type:"doughnut",
+data:{labels:g.gender.labels,datasets:[{data:g.gender.values}]},
+options:{animation:{duration:1200}}
+});
+}
+
+if(g.condition){
+new Chart(document.getElementById("conditionChart"),{
+type:"bar",
+data:{labels:g.condition.labels,datasets:[{data:g.condition.values,backgroundColor:"#4f7cff"}]},
+options:{animation:{duration:1200},plugins:{legend:{display:false}}}
+});
+}
+
+if(g.admission){
+new Chart(document.getElementById("admissionChart"),{
+type:"pie",
+data:{labels:g.admission.labels,datasets:[{data:g.admission.values}]},
+options:{animation:{duration:1200}}
+});
+}
+</script>
+
+</body>
+</html>

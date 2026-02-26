@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+.env
+static/full_result.csv
+static/report.pdf
