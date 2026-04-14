@@ -28,4 +28,3 @@ An AI-powered Healthcare Analytics Platform that allows users to query healthcar
 
 ---
 
-## 📂 Project Structure
